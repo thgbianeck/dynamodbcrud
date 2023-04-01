@@ -1,4 +1,10 @@
 spring:
   cloud:
-    config:
-      enabled: false
+    aws:
+      credentials:
+        access-key: fakeAccessKeyId
+        secret-key: fakeSecretAccessKey
+      dynamodb:
+        endpoint: http://server.bieniek:4566
+        region: us-east-1
+        enabled: true
