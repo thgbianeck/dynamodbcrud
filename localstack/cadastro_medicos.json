@@ -1,0 +1,16 @@
+{
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "MatriculaID",
+      "AttributeType": "S"
+    }
+  ],
+  "KeySchema": [
+    {
+      "AttributeName": "MatriculaID",
+      "KeyType": "HASH"
+    }
+  ],
+  "BillingMode": "PAY_PER_REQUEST",
+  "TableName": "cadastro_medicos"
+}
