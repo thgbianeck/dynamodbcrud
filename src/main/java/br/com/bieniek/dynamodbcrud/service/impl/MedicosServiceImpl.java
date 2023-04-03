@@ -1,14 +1,18 @@
 package br.com.bieniek.dynamodbcrud.service.impl;
 
 import br.com.bieniek.dynamodbcrud.entity.Medicos;
-import br.com.bieniek.dynamodbcrud.repository.MedicosRepository;
+import br.com.bieniek.dynamodbcrud.mapper.MedicosMapper;
+import br.com.bieniek.dynamodbcrud.model.request.MedicosRequest;
+import br.com.bieniek.dynamodbcrud.model.response.MedicosResponse;
 import br.com.bieniek.dynamodbcrud.repository.MedicosRepositoryAsync;
 import br.com.bieniek.dynamodbcrud.service.MedicosService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -16,23 +20,35 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MedicosServiceImpl implements MedicosService {
 
-    private final MedicosRepository medicosRepository;
+    private final MedicosRepositoryAsync medicosRepository;
     @Override
-    public Medicos save(Medicos medicos) {
+    @Transactional
+    public MedicosResponse save(MedicosRequest request) {
         UUID medicoID = UUID.randomUUID();
-        medicos.setMedicoID(medicoID);
+        Medicos medicos = MedicosMapper.toMedicosFrom(medicoID, request);
         log.info("Saving medicos: {}", medicos);
         return medicosRepository.save(medicos)
-//                .subscribeOn(Schedulers.boundedElastic()).block()
+                .subscribeOn(Schedulers.boundedElastic()).block()
                 ;
     }
 
     @Override
-    public Medicos getMedicosById(UUID medicosId) {
+    public MedicosResponse getMedicosById(String medicosId) {
         log.info("Getting medicos by id: {}", medicosId);
-        return medicosRepository.getMedicoById(medicosId)
-//                .subscribeOn(Schedulers.boundedElastic()).block()
+        return medicosRepository.getMedicoById(UUID.fromString(medicosId))
+                .subscribeOn(Schedulers.boundedElastic()).block()
                 ;
     }
 
+    @Override
+    public List<MedicosResponse> findAllMedicos() {
+        return medicosRepository.findAllMedicos()
+                .subscribeOn(Schedulers.boundedElastic()).collectList().block()
+                ;
+    }
+
+    @Override
+    public void deleteById(String uuid) {
+        medicosRepository.deleteById(UUID.fromString(uuid));
+    }
 }
